@@ -1,0 +1,15 @@
+[package]
+name = "lwe"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+humansize = "2"
+rand = "0.10.1"
+rand_distr = "0.6.0"
+serde = { version = "1.0.228", features = ["derive"] }
+subtle = "2.6"
+zeroize = { version = "1.8.2", features = ["derive"] }
+
+[dev-dependencies]
+bincode = "=1.3.3"
