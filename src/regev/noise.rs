@@ -5,8 +5,8 @@
 //! This approximates the true discrete Gaussian.
 
 use crate::SecureRng;
-use crate::arith::{Modulus, ZqElement};
-use crate::params::LweParams;
+use crate::regev::arith::{Modulus, ZqElement};
+use crate::regev::params::LweParams;
 use rand_distr::{Distribution, Normal};
 
 pub struct RoundedGaussian {

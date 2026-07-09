@@ -1,7 +1,9 @@
 use crate::SecureRng;
-use crate::arith::{Modulus, ZqElement, add_mod, distance_to_zero, inner_product_mod, sub_mod};
-use crate::noise::RoundedGaussian;
-use crate::params::LweParams;
+use crate::regev::arith::{
+    Modulus, ZqElement, add_mod, distance_to_zero, inner_product_mod, sub_mod,
+};
+use crate::regev::noise::RoundedGaussian;
+use crate::regev::params::LweParams;
 use rand::RngExt;
 use subtle::{Choice, ConditionallySelectable};
 

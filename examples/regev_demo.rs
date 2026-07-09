@@ -1,8 +1,8 @@
 //! End-to-end LWE example: keygen, encrypt a bit, decrypt, print sizes.
 
 use humansize::{BINARY, format_size};
-use lwe::LweParams;
-use lwe::lwe::{add, decrypt, encrypt, keygen, trivial_encrypt};
+use lwe::regev::LweParams;
+use lwe::regev::lwe::{add, decrypt, encrypt, keygen, trivial_encrypt};
 use rand::SeedableRng;
 use rand::rngs::StdRng;
 

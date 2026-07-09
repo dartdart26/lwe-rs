@@ -14,7 +14,7 @@
 
 use std::fmt;
 
-pub use crate::arith::Modulus;
+pub use crate::regev::arith::Modulus;
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(try_from = "LweParamsRaw")]
