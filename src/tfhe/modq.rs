@@ -2,36 +2,22 @@
 
 use crate::SecureRng;
 use rand::RngExt;
-use std::fmt;
 
 /// `q = 2^bits` with `bits` in `[2, 64]`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-#[serde(try_from = "u32", into = "u32")]
+#[serde(from = "u32", into = "u32")]
 pub struct Modulus {
     bits: u32,
     mask: u64,
 }
 
-#[derive(Debug)]
-pub struct ModulusError(&'static str);
-
-impl fmt::Display for ModulusError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "invalid modulus: {}", self.0)
-    }
-}
-
-impl std::error::Error for ModulusError {}
-
 impl Modulus {
-    pub const fn new(bits: u32) -> Result<Self, ModulusError> {
-        if bits < 2 || bits > 64 {
-            return Err(ModulusError("bits must be in [2, 64]"));
-        }
-        Ok(Self {
+    pub const fn new(bits: u32) -> Self {
+        assert!(bits >= 2 && bits <= 64);
+        Self {
             bits,
             mask: u64::MAX >> (64 - bits),
-        })
+        }
     }
 
     pub const fn bits(self) -> u32 {
@@ -54,9 +40,8 @@ impl Modulo for u64 {
     }
 }
 
-impl TryFrom<u32> for Modulus {
-    type Error = ModulusError;
-    fn try_from(bits: u32) -> Result<Self, Self::Error> {
+impl From<u32> for Modulus {
+    fn from(bits: u32) -> Self {
         Self::new(bits)
     }
 }
@@ -119,24 +104,23 @@ mod tests {
     use rand::SeedableRng;
     use rand::rngs::StdRng;
 
-    const Q6: Modulus = match Modulus::new(6) {
-        Ok(q) => q,
-        Err(_) => panic!("invalid modulus"),
-    };
-    const Q64: Modulus = match Modulus::new(64) {
-        Ok(q) => q,
-        Err(_) => panic!("invalid modulus"),
-    };
+    const Q6: Modulus = Modulus::new(6);
+    const Q64: Modulus = Modulus::new(64);
 
     fn z6(x: u64) -> ZqElement {
         ZqElement::from_u64(x, Q6)
     }
 
     #[test]
-    fn modulus_bounds() {
-        assert!(Modulus::new(1).is_err());
-        assert!(Modulus::new(65).is_err());
-        assert!(Modulus::new(64).is_ok());
+    #[should_panic]
+    fn modulus_out_of_bounds() {
+        Modulus::new(1);
+        Modulus::new(65);
+    }
+
+    #[test]
+    fn modulus_in_bounds() {
+        Modulus::new(64);
         assert_eq!(Q6.q(), 64);
         assert_eq!(Q64.q(), 1u128 << 64);
     }
@@ -167,7 +151,10 @@ mod tests {
         assert_eq!(add_mod(a, b, Q64), ZqElement::ZERO);
         assert_eq!(sub_mod(ZqElement::ZERO, b, Q64).raw(), u64::MAX);
         let c = ZqElement::from_u64(1u64 << 63, Q64);
-        assert_eq!(mul_mod(c, ZqElement::from_u64(2, Q64), Q64), ZqElement::ZERO);
+        assert_eq!(
+            mul_mod(c, ZqElement::from_u64(2, Q64), Q64),
+            ZqElement::ZERO
+        );
     }
 
     #[test]
@@ -185,7 +172,10 @@ mod tests {
         assert_eq!(z6(32).to_centered(Q6), -32);
         assert_eq!(z6(63).to_centered(Q6), -1);
         assert_eq!(ZqElement::from_u64(u64::MAX, Q64).to_centered(Q64), -1);
-        assert_eq!(ZqElement::from_u64(1u64 << 63, Q64).to_centered(Q64), i64::MIN);
+        assert_eq!(
+            ZqElement::from_u64(1u64 << 63, Q64).to_centered(Q64),
+            i64::MIN
+        );
     }
 
     #[test]
