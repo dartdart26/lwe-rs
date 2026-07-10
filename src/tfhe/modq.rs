@@ -9,6 +9,7 @@ use rand::RngExt;
 pub struct Modulus {
     bits: u32,
     mask: u64,
+    q: u128,
 }
 
 impl Modulus {
@@ -17,6 +18,7 @@ impl Modulus {
         Self {
             bits,
             mask: u64::MAX >> (64 - bits),
+            q: 1u128 << bits,
         }
     }
 
@@ -25,7 +27,7 @@ impl Modulus {
     }
 
     pub const fn q(self) -> u128 {
-        1u128 << self.bits
+        self.q
     }
 }
 
